@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Filter fmz200 Surge module without modifying unrelated rules or MITM.
+"""Conservative cover-image exception for fmz200 Surge module.
 
-This approximates QX #out=music\\.126 for rewrite lines, and additionally
-excludes standalone [Rule] DOMAIN/DOMAIN-SUFFIX entries for music.126.net.
+Preserve NetEase Music ad blocking, scripts, MITM, and unrelated apps.
+Only remove image reject/tiny-gif rules for the NetEase cover CDN.
 """
 import argparse
 import difflib
@@ -12,54 +12,47 @@ import urllib.request
 from pathlib import Path
 
 SOURCE = 'https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/blockAds.module'
-REWRITE_SECTIONS = {'URL Rewrite'}
-DOMAIN_TYPES = {'DOMAIN', 'DOMAIN-SUFFIX'}
 
 
-def normalized(text: str) -> str:
-    return text.replace(r'\.', '.')
 
+def is_cover_rule(section: str, line: str) -> bool:
+    """Match only image-blocking rules for p*.music.126.net cover hosts.
 
-def matches_rewrite(line: str, keyword: str) -> bool:
-    """Match either regex-escaped or literal music.126 spelling."""
-    candidate = normalized(line)
-    return (normalized(keyword) in candidate or 'music.126.net' in candidate)
-
-
-def matches_rule(line: str) -> bool:
-    """Only target standalone domain entries; never touch shared rules."""
-    fields = [part.strip() for part in line.split(',')]
-    if len(fields) < 3 or fields[0] not in DOMAIN_TYPES:
+    The source uses escaped regex patterns; normalize only escaped dots and slashes.
+    Never remove ad-specific iadmusicmat/admusicpic hosts.
+    """
+    if section not in {'URL Rewrite', 'Map Local'}:
         return False
-    host = fields[1].lower().rstrip('.')
-    return host == 'music.126.net' or host.endswith('.music.126.net')
+    flat = line.replace(r'\.', '.').replace(r'\/', '/')
+    # Covers p.c.music.126.net, p1.music.126.net, p\d.music.126.net,
+    # and p[^4](c)?.music.126.net; does not cover iadmusicmat.music.126.net.
+    cover_host = re.search(r'(?i)//p[^/\s]*?\.music\.126\.net', flat)
+    if not cover_host:
+        return False
+    if section == 'URL Rewrite':
+        return bool(re.search(r'(?i)\s-\sreject(?:\s|$)', line))
+    return bool(re.search(r'(?i)\bdata-type=tiny-gif\b', line))
 
 
 def transform(source: str, keyword: str = r'music\.126'):
+    """Return filtered module and report; keyword retained for CLI compatibility."""
     section = ''
     kept, removed = [], []
-    for index, line in enumerate(source.splitlines(keepends=True), 1):
+    for number, line in enumerate(source.splitlines(keepends=True), 1):
         stripped = line.strip()
         header = re.fullmatch(r'\[([^\]]+)\]', stripped)
         if header:
             section = header.group(1)
-        if not stripped or stripped.startswith(('#', ';')):
-            kept.append(line)
-            continue
-        if section == 'Script' and matches_rewrite(line, keyword):
-            raise ValueError(f'Matched [Script] at line {index}; manual review required: {stripped[:200]}')
-        remove = ((section in REWRITE_SECTIONS and matches_rewrite(line, keyword))
-                  or (section == 'Rule' and matches_rule(line)))
-        if remove:
-            removed.append({'line': index, 'section': section, 'content': stripped})
+        if stripped and not stripped.startswith(('#', ';')) and is_cover_rule(section, stripped):
+            removed.append({'line': number, 'section': section, 'content': stripped})
         else:
             kept.append(line)
     if '[URL Rewrite]' not in source or '[MITM]' not in source:
         raise ValueError('Missing expected Surge sections')
     if not removed:
-        raise ValueError('No matching entries; upstream may have changed')
+        raise ValueError('No cover-image rules matched; upstream may have changed')
     result = ''.join(kept)
-    if not result.strip() or len(result) < len(source) * .5:
+    if len(result) < len(source) * .5:
         raise ValueError('Unexpectedly large removal')
     return result, removed
 
@@ -68,23 +61,19 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--input', help='Use local source for testing')
     p.add_argument('--output', default='blockAds-filtered.sgmodule')
-    p.add_argument('--keyword', default=r'music\.126')
+    p.add_argument('--keyword', default=r'music\.126', help='Legacy argument; V3 uses cover-image matching')
     p.add_argument('--dry-run', action='store_true')
     args = p.parse_args()
     if args.input:
         original = Path(args.input).read_text(encoding='utf-8-sig')
     else:
-        request = urllib.request.Request(SOURCE, headers={'User-Agent': 'Surge-Filter/1.1'})
+        request = urllib.request.Request(SOURCE, headers={'User-Agent': 'Surge-Filter/1.2'})
         with urllib.request.urlopen(request, timeout=40) as response:
             original = response.read().decode('utf-8-sig')
     result, removed = transform(original, args.keyword)
-    report = {
-        'source': SOURCE,
-        'rewrite_keyword': args.keyword,
-        'additional_exclusion': 'music.126.net (rewrite + standalone DOMAIN/DOMAIN-SUFFIX)',
-        'removed_count': len(removed),
-        'removed': removed,
-    }
+    report = {'source': SOURCE, 'strategy': 'cover-image-only-v3',
+              'preserved': ['Rule', 'Script', 'MITM', 'other Map Local'],
+              'removed_count': len(removed), 'removed': removed}
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if args.dry_run:
         print(''.join(difflib.unified_diff(original.splitlines(True), result.splitlines(True), fromfile='upstream', tofile='filtered')))
