@@ -1,0 +1,22 @@
+{
+  "source": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/blockAds.module",
+  "keyword": "music\\.126",
+  "removed_count": 3,
+  "removed": [
+    {
+      "line": 5150,
+      "section": "URL Rewrite",
+      "content": "^https?:\\/\\/p\\.c\\.music\\.126.net\\/.*?jpg$ - reject"
+    },
+    {
+      "line": 5153,
+      "section": "URL Rewrite",
+      "content": "^https?:\\/\\/iadmusicmat\\.music.126.net\\/.*?jpg$ - reject"
+    },
+    {
+      "line": 5154,
+      "section": "URL Rewrite",
+      "content": "^https?:\\/\\/p\\d\\.music\\.126\\.net\\/\\w+==\\/\\d+\\.jpg$ - reject"
+    }
+  ]
+}
