@@ -1,8 +1,49 @@
 {
   "source": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/blockAds.module",
-  "keyword": "music\\.126",
-  "removed_count": 3,
+  "rewrite_keyword": "music\\.126",
+  "additional_exclusion": "music.126.net (rewrite + standalone DOMAIN/DOMAIN-SUFFIX)",
+  "removed_count": 11,
   "removed": [
+    {
+      "line": 2434,
+      "section": "Rule",
+      "content": "DOMAIN,iadmusicmat.music.126.net,REJECT"
+    },
+    {
+      "line": 3092,
+      "section": "Rule",
+      "content": "DOMAIN,admusicpic.music.126.net,REJECT"
+    },
+    {
+      "line": 3097,
+      "section": "Rule",
+      "content": "DOMAIN,iadmusicmat.music.126.net,REJECT"
+    },
+    {
+      "line": 3098,
+      "section": "Rule",
+      "content": "DOMAIN,iadmusicmatvideo.music.126.net,REJECT"
+    },
+    {
+      "line": 3138,
+      "section": "Rule",
+      "content": "DOMAIN-SUFFIX,admusicpic.music.126.net,REJECT"
+    },
+    {
+      "line": 3139,
+      "section": "Rule",
+      "content": "DOMAIN-SUFFIX,iadmusicmat.music.126.net,REJECT"
+    },
+    {
+      "line": 3140,
+      "section": "Rule",
+      "content": "DOMAIN-SUFFIX,iadmusicmatvideo.music.126.net,REJECT"
+    },
+    {
+      "line": 3198,
+      "section": "Rule",
+      "content": "DOMAIN,iadmusicmat.music.126.net,REJECT"
+    },
     {
       "line": 5150,
       "section": "URL Rewrite",
