@@ -1,63 +1,28 @@
 {
   "source": "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/blockAds.module",
-  "rewrite_keyword": "music\\.126",
-  "additional_exclusion": "music.126.net (rewrite + standalone DOMAIN/DOMAIN-SUFFIX)",
-  "removed_count": 11,
+  "strategy": "cover-image-only-v3",
+  "preserved": [
+    "Rule",
+    "Script",
+    "MITM",
+    "other Map Local"
+  ],
+  "removed_count": 3,
   "removed": [
-    {
-      "line": 2434,
-      "section": "Rule",
-      "content": "DOMAIN,iadmusicmat.music.126.net,REJECT"
-    },
-    {
-      "line": 3092,
-      "section": "Rule",
-      "content": "DOMAIN,admusicpic.music.126.net,REJECT"
-    },
-    {
-      "line": 3097,
-      "section": "Rule",
-      "content": "DOMAIN,iadmusicmat.music.126.net,REJECT"
-    },
-    {
-      "line": 3098,
-      "section": "Rule",
-      "content": "DOMAIN,iadmusicmatvideo.music.126.net,REJECT"
-    },
-    {
-      "line": 3138,
-      "section": "Rule",
-      "content": "DOMAIN-SUFFIX,admusicpic.music.126.net,REJECT"
-    },
-    {
-      "line": 3139,
-      "section": "Rule",
-      "content": "DOMAIN-SUFFIX,iadmusicmat.music.126.net,REJECT"
-    },
-    {
-      "line": 3140,
-      "section": "Rule",
-      "content": "DOMAIN-SUFFIX,iadmusicmatvideo.music.126.net,REJECT"
-    },
-    {
-      "line": 3198,
-      "section": "Rule",
-      "content": "DOMAIN,iadmusicmat.music.126.net,REJECT"
-    },
     {
       "line": 5150,
       "section": "URL Rewrite",
       "content": "^https?:\\/\\/p\\.c\\.music\\.126.net\\/.*?jpg$ - reject"
     },
     {
-      "line": 5153,
-      "section": "URL Rewrite",
-      "content": "^https?:\\/\\/iadmusicmat\\.music.126.net\\/.*?jpg$ - reject"
-    },
-    {
       "line": 5154,
       "section": "URL Rewrite",
       "content": "^https?:\\/\\/p\\d\\.music\\.126\\.net\\/\\w+==\\/\\d+\\.jpg$ - reject"
+    },
+    {
+      "line": 7691,
+      "section": "Map Local",
+      "content": "^https?:\\/\\/p[^4](c)?\\.music\\.126\\.net\\/\\w+==\\/10995\\d{13}\\.jpg$ data-type=tiny-gif status-code=200"
     }
   ]
 }
