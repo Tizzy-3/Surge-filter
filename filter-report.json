@@ -10,17 +10,17 @@
   "removed_count": 3,
   "removed": [
     {
-      "line": 5198,
+      "line": 5196,
       "section": "URL Rewrite",
       "content": "^https?:\\/\\/p\\.c\\.music\\.126.net\\/.*?jpg$ - reject"
     },
     {
-      "line": 5202,
+      "line": 5200,
       "section": "URL Rewrite",
       "content": "^https?:\\/\\/p\\d\\.music\\.126\\.net\\/\\w+==\\/\\d+\\.jpg$ - reject"
     },
     {
-      "line": 7663,
+      "line": 7661,
       "section": "Map Local",
       "content": "^https?:\\/\\/p[^4](c)?\\.music\\.126\\.net\\/\\w+==\\/10995\\d{13}\\.jpg$ data-type=tiny-gif status-code=200"
     }
